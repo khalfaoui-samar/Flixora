@@ -1,0 +1,87 @@
+<!-- movies/templates/movies/auth/login.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Flixora</title>
+    <link rel="stylesheet" href="{% static 'movies/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page">
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <a href="{% url 'movie_list' %}" class="auth-logo">
+                <i class="fas fa-film"></i>
+                <span>Flixora</span>
+            </a>
+            <h1>Connexion</h1>
+            <p>Accédez à votre compte</p>
+        </div>
+
+        {% if messages %}
+        <div class="auth-messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i>
+                    Nom d'utilisateur
+                </label>
+                <input type="text" 
+                       id="username" 
+                       name="username" 
+                       required 
+                       placeholder="Votre nom d'utilisateur">
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Mot de passe
+                </label>
+                <input type="password" 
+                       id="password" 
+                       name="password" 
+                       required 
+                       placeholder="Votre mot de passe">
+            </div>
+
+            <button type="submit" class="auth-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                Se connecter
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>Pas encore de compte ? 
+                <a href="{% url 'register' %}">S'inscrire</a>
+            </p>
+            <p>
+                <a href="{% url 'movie_list' %}">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour aux films
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

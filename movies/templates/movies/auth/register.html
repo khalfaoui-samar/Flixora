@@ -1,0 +1,107 @@
+<!-- movies/templates/movies/auth/register.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Flixora</title>
+    <link rel="stylesheet" href="{% static 'movies/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page">
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <a href="{% url 'movie_list' %}" class="auth-logo">
+                <i class="fas fa-film"></i>
+                <span>Flixora</span>
+            </a>
+            <h1>Créer un compte</h1>
+            <p>Rejoignez Flixora gratuitement</p>
+        </div>
+
+        {% if messages %}
+        <div class="auth-messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i>
+                    Nom d'utilisateur
+                </label>
+                <input type="text" 
+                       id="username" 
+                       name="username" 
+                       required 
+                       placeholder="Choisissez un nom d'utilisateur">
+            </div>
+
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </label>
+                <input type="email" 
+                       id="email" 
+                       name="email" 
+                       required 
+                       placeholder="Votre adresse email">
+            </div>
+
+            <div class="form-group">
+                <label for="password1">
+                    <i class="fas fa-lock"></i>
+                    Mot de passe
+                </label>
+                <input type="password" 
+                       id="password1" 
+                       name="password1" 
+                       required 
+                       placeholder="Créez un mot de passe">
+            </div>
+
+            <div class="form-group">
+                <label for="password2">
+                    <i class="fas fa-lock"></i>
+                    Confirmer le mot de passe
+                </label>
+                <input type="password" 
+                       id="password2" 
+                       name="password2" 
+                       required 
+                       placeholder="Confirmez votre mot de passe">
+            </div>
+
+            <button type="submit" class="auth-btn">
+                <i class="fas fa-user-plus"></i>
+                S'inscrire
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>Déjà un compte ? 
+                <a href="{% url 'login' %}">Se connecter</a>
+            </p>
+            <p>
+                <a href="{% url 'movie_list' %}">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour aux films
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

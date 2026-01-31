@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique - Flixora</title>
+    <link rel="stylesheet" href="{% static 'movies/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Header avec navigation -->
+<header class="profile-header">
+    <div class="container">
+        <a href="{% url 'movie_list' %}" class="logo">
+            <i class="fas fa-film"></i>
+            <span>Flixora</span>
+        </a>
+        
+        <nav class="profile-nav">
+            <a href="{% url 'movie_list' %}">
+                <i class="fas fa-home"></i>
+                Accueil
+            </a>
+            <a href="{% url 'profile' %}" class="active">
+                <i class="fas fa-user"></i>
+                Ma Flixora
+            </a>
+            <a href="{% url 'watch_history' %}" class="history-link active">
+                <i class="fas fa-history"></i>
+                Historique
+            </a>
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Déconnexion
+            </a>
+        </nav>
+    </div>
+</header>
+
+<main class="history-container">
+    <!-- En-tête de la page -->
+    <div class="history-header">
+        <div class="history-title-section">
+            <h1>
+                <i class="fas fa-history"></i>
+                Historique de visionnage
+            </h1>
+            <p class="history-subtitle">
+                Retrouvez tous les films que vous avez regardés
+            </p>
+        </div>
+        
+        <div class="history-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{ history_count|default:"0" }}</span>
+                    <span class="stat-label">Films</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon completed">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{ completed_count|default:"0" }}</span>
+                    <span class="stat-label">Terminés</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon in-progress">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{ in_progress_count|default:"0" }}</span>
+                    <span class="stat-label">En cours</span>
+                </div>
+            </div>
+            
+            <form method="POST" action="{% url 'clear_watch_history' %}" class="clear-history-form" onsubmit="return confirm('Vider tout l\'historique ? Cette action est irréversible.')">
+                {% csrf_token %}
+                <button type="submit" class="clear-history-btn">
+                    <i class="fas fa-trash-alt"></i>
+                    Vider l'historique
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Liste de l'historique -->
+    {% if watch_history %}
+    <div class="favorites-grid">
+        {% for item in watch_history %}
+        <div class="favorite-movie-card">
+            <div class="history-poster-container">
+                {% if item.movie.thumbnail %}
+                    <img src="{{ item.movie.thumbnail.url }}" 
+                         alt="{{ item.movie.title }}" 
+                         class="history-poster"
+                         onclick="window.location.href='{% url 'movie_detail' item.movie.pk %}'">
+                {% else %}
+                    <img src="{% static 'movies/images/default-poster.jpg' %}" 
+                         alt="{{ item.movie.title }}" 
+                         class="history-poster"
+                         onclick="window.location.href='{% url 'movie_detail' item.movie.pk %}'">
+                {% endif %}
+                
+                <div class="history-overlay">
+                    <button class="watch-btn" onclick="window.location.href='{% url 'movie_detail' item.movie.pk %}'">
+                        <i class="fas fa-play"></i>
+                        Regarder
+                    </button>
+                    
+                    <button class="remove-history-btn" data-history-id="{{ item.id }}" onclick="removeFromHistory({{ item.id }})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                {% if item.completed %}
+                <div class="history-badge completed">
+                    <i class="fas fa-check"></i>
+                    Terminé
+                </div>
+                {% else %}
+                <div class="history-badge in-progress">
+                    <i class="fas fa-clock"></i>
+                    En cours
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="history-info">
+                <h3 class="movie-title">{{ item.movie.title }}</h3>
+                
+                <div class="movie-meta">
+                    <span class="movie-category">{{ item.movie.category }}</span>
+                    {% if item.movie.duration %}
+                    <span class="movie-duration">
+                        <i class="fas fa-clock"></i>
+                        {{ item.movie.duration }} min
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="watch-info">
+                    <div class="watch-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        {{ item.watched_at|date:"d/m/Y" }}
+                    </div>
+                    <div class="watch-time">
+                        <i class="fas fa-clock"></i>
+                        {{ item.watched_at|date:"H:i" }}
+                    </div>
+                </div>
+                
+                {% if item.duration_watched and item.movie.duration %}
+                <div class="progress-container">
+                    <div class="progress-label">
+                        Progression : {{ item.duration_watched }} / {{ item.movie.duration }} min
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {% widthratio item.duration_watched item.movie.duration 100 %}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- État vide -->
+    <div class="empty-history">
+        <div class="empty-icon">
+            <i class="fas fa-history"></i>
+        </div>
+        <h2>Votre historique est vide</h2>
+        <p>Commencez à regarder des films pour les voir apparaître ici !</p>
+        <a href="{% url 'movie_list' %}" class="browse-btn">
+            <i class="fas fa-film"></i>
+            Parcourir les films
+        </a>
+    </div>
+    {% endif %}
+</main>
+
+<script>
+// Fonction pour retirer un film de l'historique
+async function removeFromHistory(historyId) {
+    if (!confirm('Retirer ce film de l\'historique ?')) return;
+    
+    try {
+        const response = await fetch(`/remove-from-history/${historyId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Supprimer la carte de l'interface
+            const historyCard = document.querySelector(`[data-history-id="${historyId}"]`).closest('.history-card');
+            if (historyCard) {
+                historyCard.style.opacity = '0';
+                historyCard.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    historyCard.remove();
+                    // Recharger la page si plus d'éléments
+                    if (document.querySelectorAll('.history-card').length === 0) {
+                        location.reload();
+                    }
+                }, 300);
+            }
+            showNotification(data.message || 'Film retiré de l\'historique', 'success');
+        } else {
+            showNotification(data.error || 'Erreur lors de la suppression', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('Une erreur est survenue', 'error');
+    }
+}
+
+// Fonction pour afficher des notifications
+function showNotification(message, type = 'info') {
+    // Créer la notification
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    // Ajouter au body
+    document.body.appendChild(notification);
+    
+    // Supprimer après 5 secondes
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 5000);
+}
+</script>
+
+</body>
+</html>

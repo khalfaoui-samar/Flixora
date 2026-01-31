@@ -1,0 +1,843 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flixora - Films et Séries</title>
+    <link rel="stylesheet" href="{% static 'movies/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="site-header">
+    <header class="profile-header">
+        <div class="container">
+            <a href="{% url 'movie_list' %}" class="logo">
+                <i class="fas fa-film"></i>
+            </a>
+            
+            <!-- Section utilisateur à droite -->
+            <div class="user-section">
+                <div class="profile-nav">
+                    <a href="{% url 'movie_list' %}" class="active1">
+                        <i class="fas fa-home"></i>
+                        Accueil
+                    </a>
+                    <a href="{% url 'films' %}" class="active1">
+                        <i class="fas fa-film"></i>
+                        Films
+                    </a>
+                    <a href="{% url 'animes' %}" class="active1">
+                        <i class="fas fa-play-circle"></i>
+                        Animes
+                    </a>
+                    <a href="{% url 'series' %}" class="active1">
+                        <i class="fas fa-tv"></i>
+                        Séries
+                    </a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="active2">
+                        <i class="fas fa-crown"></i>
+                        <span>Ma Flixora</span>
+                    </a>
+                    <a href="{% url 'logout' %}" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Connexion
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header><br><br>
+
+    <!-- Sous-header avec slogan et catégories -->
+    <div class="sub-header">
+        <div class="site-logo">
+            <h1>Flixora</h1>
+        </div>
+        <p class="site-slogan">Votre cinéma en ligne illimité</p>
+        
+        <!-- La recherche reste visible -->
+        <div class="header-search">
+            <div class="search-wrapper">
+                <input type="text" 
+                       id="searchInput" 
+                       class="search-input" 
+                       placeholder="Rechercher un film..."
+                       autocomplete="off">
+                <button class="search-button" onclick="performSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div id="searchResults" class="search-results" style="display: none;"></div>
+        </div>
+        
+        <div class="category-tags">
+            <span class="category-tag active" data-category="all" onclick="filterAllSections('all')">Tous</span>
+            <span class="category-tag" data-category="action" onclick="filterAllSections('action')">Action</span>
+            <span class="category-tag" data-category="drama" onclick="filterAllSections('drama')">Drame</span>
+            <span class="category-tag" data-category="comedy" onclick="filterAllSections('comedy')">Comédie</span>
+            <span class="category-tag" data-category="romance" onclick="filterAllSections('romance')">Romance</span>
+            <span class="category-tag" data-category="horror" onclick="filterAllSections('horror')">Horror</span>
+            <span class="category-tag" data-category="fantasy" onclick="filterAllSections('fantasy')">Fantaisie</span>
+        </div>
+    </div>
+</header>
+
+<br><br><br><br>
+
+<!-- ============ SECTION FILMS ============ -->
+<main class="movies-section" id="films-section">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-film"></i>
+            Films populaires
+        </h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="{% url 'films' %}" class="view-more-btn"  style="color: red; ">
+            Voir tous 
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <br>
+    
+    <div class="movies-grid" id="filmsGrid">
+        {% for movie in films %}
+        <div class="movie-card" 
+             data-title="{{ movie.title|lower }}" 
+             data-category="{{ movie.category|lower }}"
+             data-type="{{ movie.video_type|default:'film'|lower }}"
+             data-id="{{ movie.id }}">
+            
+            {% if forloop.counter <= 3 %}
+            <span class="movie-badge">Nouveau</span>
+            {% endif %}
+            
+            <div class="movie-poster-container">
+                {% if movie.thumbnail %}
+                    <img src="{{ movie.thumbnail.url }}" 
+                         alt="{{ movie.title }}" 
+                         class="movie-poster"
+                         loading="lazy"
+                         onclick="window.location.href='{% url 'movie_detail' movie.pk %}'"
+                         style="cursor: pointer;">
+                {% else %}
+                    <img src="{% static 'movies/images/default-poster.jpg' %}" 
+                         alt="{{ movie.title }}" 
+                         class="movie-poster"
+                         loading="lazy"
+                         onclick="window.location.href='{% url 'movie_detail' movie.pk %}'"
+                         style="cursor: pointer;">
+                {% endif %}
+                
+                <!-- Type badge -->
+                {% if movie.video_type %}
+                <span class="type-badge {{ movie.video_type|lower }}">
+                    <i class="fas fa-video"></i> Film
+                </span>
+                {% endif %}
+                
+                <div class="movie-overlay">
+                    <div class="movie-actions">
+                        <button class="action-btn play"  onclick="window.location.href='{% url 'movie_detail' movie.pk %}'">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="action-btn favorite" onclick="handleFavoriteClick(event, {{ movie.pk }})" data-movie-id="{{ movie.pk }}" title="{% if movie.is_fav %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}">
+                            <i class="{% if movie.is_fav %}fas fa-heart{% else %}far fa-heart{% endif %}"
+                               id="heart-icon-{{ movie.pk }}"
+                               style="{% if movie.is_fav %}color: #e74c3c;{% endif %}"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info du film avec lien séparé -->
+            <a href="{% url 'movie_detail' movie.pk %}" class="movie-info-link">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <span class="movie-category">{{ movie.get_category_display }}</span>
+                    
+                    {% if movie.duration %}
+                    <div class="movie-duration">
+                        <i class="fas fa-clock"></i>
+                        {{ movie.duration }} min
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="no-results">
+            <i class="fas fa-film"></i>
+            <h3>Aucun film disponible</h3>
+            <p>Revenez plus tard pour découvrir nos nouveautés.</p>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<!-- ============ SECTION ANIMES ============ -->
+<main class="movies-section" id="animes-section">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-play-circle"></i>
+            Animes populaires
+        </h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="{% url 'animes' %}" class="view-more-btn" style="color: red; ">
+            Voir tous 
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <br>
+    
+    <div class="movies-grid" id="animesGrid">
+        {% for movie in animes %}
+        <div class="movie-card" 
+             data-title="{{ movie.title|lower }}" 
+             data-category="{{ movie.category|lower }}"
+             data-type="{{ movie.video_type|default:'anime'|lower }}"
+             data-id="{{ movie.id }}">
+            
+            {% if forloop.counter <= 3 %}
+            <span class="movie-badge">Nouveau</span>
+            {% endif %}
+            
+            <div class="movie-poster-container">
+                {% if movie.thumbnail %}
+                    <img src="{{ movie.thumbnail.url }}" 
+                         alt="{{ movie.title }}" 
+                         class="movie-poster"
+                         loading="lazy"
+                         onclick="window.location.href='{% url 'movie_detail' movie.pk %}'"
+                         style="cursor: pointer;">
+                {% else %}
+                    <img src="{% static 'movies/images/default-poster.jpg' %}" 
+                         alt="{{ movie.title }}" 
+                         class="movie-poster"
+                         loading="lazy"
+                         onclick="window.location.href='{% url 'movie_detail' movie.pk %}'"
+                         style="cursor: pointer;">
+                {% endif %}
+                
+                <!-- Type badge -->
+                {% if movie.video_type %}
+                <span class="type-badge {{ movie.video_type|lower }}">
+                    <i class="fas fa-play-circle"></i> Anime
+                </span>
+                {% endif %}
+                
+                <div class="movie-overlay">
+                    <div class="movie-actions">
+                        <button class="action-btn play"  onclick="window.location.href='{% url 'movie_detail' movie.pk %}'">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="action-btn favorite" onclick="handleFavoriteClick(event, {{ movie.pk }})" data-movie-id="{{ movie.pk }}" title="{% if movie.is_fav %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}">
+                            <i class="{% if movie.is_fav %}fas fa-heart{% else %}far fa-heart{% endif %}"
+                               id="heart-icon-{{ movie.pk }}"
+                               style="{% if movie.is_fav %}color: #e74c3c;{% endif %}"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info du film avec lien séparé -->
+            <a href="{% url 'movie_detail' movie.pk %}" class="movie-info-link">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <span class="movie-category">{{ movie.get_category_display }}</span>
+                    
+                    {% if movie.duration %}
+                    <div class="movie-duration">
+                        <i class="fas fa-clock"></i>
+                        {{ movie.duration }} min
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="no-results">
+            <i class="fas fa-play-circle"></i>
+            <h3>Aucun anime disponible</h3>
+            <p>Revenez plus tard pour découvrir nos nouveautés.</p>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<!-- ============ SECTION SÉRIES ============ -->
+<main class="movies-section" id="series-section">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-tv"></i>
+            Séries populaires
+        </h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+        <a href="{% url 'series' %}" class="view-more-btn" style="color: red; ">
+            Voir tous
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <br>
+    
+    <div class="movies-grid" id="seriesGrid">
+        {% for movie in series %}
+        <div class="movie-card" 
+             data-title="{{ movie.title|lower }}" 
+             data-category="{{ movie.category|lower }}"
+             data-type="{{ movie.video_type|default:'serie'|lower }}"
+             data-id="{{ movie.id }}">
+            
+            {% if forloop.counter <= 3 %}
+            <span class="movie-badge">Nouveau</span>
+            {% endif %}
+            
+            <div class="movie-poster-container">
+                {% if movie.thumbnail %}
+                    <img src="{{ movie.thumbnail.url }}" 
+                         alt="{{ movie.title }}" 
+                         class="movie-poster"
+                         loading="lazy"
+                         onclick="window.location.href='{% url 'movie_detail' movie.pk %}'"
+                         style="cursor: pointer;">
+                {% else %}
+                    <img src="{% static 'movies/images/default-poster.jpg' %}" 
+                         alt="{{ movie.title }}" 
+                         class="movie-poster"
+                         loading="lazy"
+                         onclick="window.location.href='{% url 'movie_detail' movie.pk %}'"
+                         style="cursor: pointer;">
+                {% endif %}
+                
+                <!-- Type badge -->
+                {% if movie.video_type %}
+                <span class="type-badge {{ movie.video_type|lower }}">
+                    <i class="fas fa-tv"></i> Série
+                </span>
+                {% endif %}
+                
+                <div class="movie-overlay">
+                    <div class="movie-actions">
+                        <button class="action-btn play"  onclick="window.location.href='{% url 'movie_detail' movie.pk %}'">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="action-btn favorite" onclick="handleFavoriteClick(event, {{ movie.pk }})" data-movie-id="{{ movie.pk }}" title="{% if movie.is_fav %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}">
+                            <i class="{% if movie.is_fav %}fas fa-heart{% else %}far fa-heart{% endif %}"
+                               id="heart-icon-{{ movie.pk }}"
+                               style="{% if movie.is_fav %}color: #e74c3c;{% endif %}"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info du film avec lien séparé -->
+            <a href="{% url 'movie_detail' movie.pk %}" class="movie-info-link">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <span class="movie-category">{{ movie.get_category_display }}</span>
+                    
+                    {% if movie.duration %}
+                    <div class="movie-duration">
+                        <i class="fas fa-clock"></i>
+                        {{ movie.duration }} min
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="no-results">
+            <i class="fas fa-tv"></i>
+            <h3>Aucune série disponible</h3>
+            <p>Revenez plus tard pour découvrir nos nouveautés.</p>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<script>
+// Variables globales
+let currentFilter = 'all';
+let searchTimeout;
+
+// Fonction pour récupérer le token CSRF
+function getCSRFToken() {
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// ============ FONCTIONS PRINCIPALES DE FILTRAGE ============
+
+// Fonction pour filtrer TOUTES les sections
+function filterAllSections(category) {
+    // Mettre à jour le bouton actif
+    const tags = document.querySelectorAll('.category-tag');
+    tags.forEach(tag => tag.classList.remove('active'));
+    
+    const clickedTag = document.querySelector(`.category-tag[data-category="${category}"]`);
+    if (clickedTag) {
+        clickedTag.classList.add('active');
+    }
+    
+    // Mettre à jour le filtre courant
+    currentFilter = category;
+    
+    // Filtrer chaque section
+    filterSection('filmsGrid', category);
+    filterSection('animesGrid', category);
+    filterSection('seriesGrid', category);
+    
+    // Appliquer aussi la recherche si elle existe
+    const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+    if (searchQuery) {
+        applySearchFilter(searchQuery);
+    }
+}
+
+// Fonction pour filtrer une section spécifique
+function filterSection(gridId, category) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    
+    const cards = grid.querySelectorAll('.movie-card');
+    let hasVisibleCards = false;
+    
+    // Si catégorie = 'all', montrer toutes les cartes
+    if (category === 'all') {
+        cards.forEach(card => {
+            card.style.display = '';
+            card.style.opacity = '1';
+            hasVisibleCards = true;
+        });
+    } else {
+        // Filtrer par catégorie
+        cards.forEach(card => {
+            const cardCategory = card.getAttribute('data-category') || '';
+            
+            // Vérifier si la catégorie correspond
+            const categoryMatches = checkCategoryMatch(cardCategory, category);
+            
+            if (categoryMatches) {
+                card.style.display = '';
+                card.style.opacity = '1';
+                card.style.animation = 'fadeIn 0.3s ease';
+                hasVisibleCards = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Afficher ou cacher le message "aucun résultat"
+    toggleNoResultsMessage(gridId, !hasVisibleCards && category !== 'all');
+}
+
+// Fonction pour vérifier la correspondance de catégorie
+function checkCategoryMatch(cardCategory, filterCategory) {
+    // Nettoyer les catégories
+    cardCategory = cardCategory.toLowerCase().trim();
+    filterCategory = filterCategory.toLowerCase().trim();
+    
+    // Mapping des catégories (français ↔ anglais)
+    const categoryMapping = {
+        // Français -> Anglais
+        'action': 'action',
+        'drame': 'drama',
+        'drama': 'drama',
+        'comédie': 'comedy',
+        'comedy': 'comedy',
+        'romance': 'romance',
+        'horreur': 'horror',
+        'horror': 'horror',
+        'fantaisie': 'fantasy',
+        'fantasy': 'fantasy',
+        'thriller': 'thriller',
+        'science-fiction': 'sci_fi',
+        'sci_fi': 'sci_fi'
+    };
+    
+    // Vérifier la correspondance directe
+    if (cardCategory === filterCategory) {
+        return true;
+    }
+    
+    // Vérifier via le mapping
+    const mappedFilter = categoryMapping[filterCategory];
+    if (mappedFilter && cardCategory === mappedFilter) {
+        return true;
+    }
+    
+    // Vérifier si contient la catégorie (pour les cas comme "sci_fi")
+    if (cardCategory.includes(filterCategory) || filterCategory.includes(cardCategory)) {
+        return true;
+    }
+    
+    // Vérifier toutes les correspondances inverses
+    for (const [french, english] of Object.entries(categoryMapping)) {
+        if ((cardCategory === french && filterCategory === english) ||
+            (cardCategory === english && filterCategory === french)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// ============ FONCTIONS DE RECHERCHE ============
+
+// Fonction pour appliquer le filtre de recherche
+function applySearchFilter(searchQuery) {
+    const sections = ['filmsGrid', 'animesGrid', 'seriesGrid'];
+    
+    sections.forEach(sectionId => {
+        const grid = document.getElementById(sectionId);
+        if (!grid) return;
+        
+        const cards = grid.querySelectorAll('.movie-card');
+        let hasVisibleCards = false;
+        
+        cards.forEach(card => {
+            // Ne traiter que les cartes déjà visibles (après filtrage catégorie)
+            if (card.style.display !== 'none') {
+                const title = card.getAttribute('data-title') || '';
+                
+                if (title.includes(searchQuery)) {
+                    card.style.display = '';
+                    hasVisibleCards = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+        });
+        
+        // Mettre à jour le message
+        toggleNoResultsMessage(sectionId, !hasVisibleCards);
+    });
+}
+
+// Fonction de recherche principale
+function performSearch() {
+    const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+    
+    if (searchQuery === '') {
+        // Si recherche vide, réappliquer juste le filtre de catégorie
+        filterAllSections(currentFilter);
+    } else {
+        // Combiner recherche + filtre catégorie
+        applySearchFilter(searchQuery);
+    }
+}
+
+// Recherche en temps réel
+document.getElementById('searchInput').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    
+    searchTimeout = setTimeout(() => {
+        performSearch();
+    }, 300);
+});
+
+// Appuyer sur Entrée pour rechercher
+document.getElementById('searchInput').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// ============ FONCTIONS UTILITAIRES ============
+
+// Fonction pour afficher/cacher le message "aucun résultat"
+function toggleNoResultsMessage(gridId, show) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    
+    let messageDiv = grid.querySelector('.no-results-message');
+    const sectionTitle = gridId.replace('Grid', ''); // "films", "animes", "series"
+    
+    if (show && !messageDiv) {
+        // Créer le message
+        messageDiv = document.createElement('div');
+        messageDiv.className = 'no-results-message';
+        
+        let messageText = '';
+        if (currentFilter !== 'all') {
+            messageText = `Aucun ${getSectionName(sectionId)} de type "${getCategoryName(currentFilter)}" trouvé`;
+        } else {
+            messageText = `Aucun ${getSectionName(sectionId)} trouvé`;
+        }
+        
+        messageDiv.innerHTML = `
+            <i class="fas fa-film"></i>
+            <h3>${messageText}</h3>
+            <p>Essayez une autre catégorie ou recherchez autre chose.</p>
+        `;
+        grid.appendChild(messageDiv);
+    } else if (!show && messageDiv) {
+        // Supprimer le message
+        messageDiv.remove();
+    }
+}
+
+// Fonction pour obtenir le nom de la section
+function getSectionName(sectionId) {
+    const names = {
+        'filmsGrid': 'film',
+        'animesGrid': 'anime',
+        'seriesGrid': 'série'
+    };
+    return names[sectionId] || 'contenu';
+}
+
+// Fonction pour obtenir le nom de la catégorie
+function getCategoryName(category) {
+    const categoryNames = {
+        'action': 'Action',
+        'drama': 'Drame',
+        'comedy': 'Comédie',
+        'romance': 'Romance',
+        'horror': 'Horreur',
+        'fantasy': 'Fantaisie',
+        'thriller': 'Thriller',
+        'sci_fi': 'Science-Fiction'
+    };
+    return categoryNames[category] || category;
+}
+
+// ============ FONCTIONS EXISTANTES ============
+
+// Fonction pour gérer le clic sur favori
+function handleFavoriteClick(event, movieId) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    {% if user.is_authenticated %}
+    toggleFavorite(movieId);
+    {% else %}
+    redirectToLoginWithMessage();
+    {% endif %}
+}
+
+function redirectToLoginWithMessage() {
+    const message = "Pour créer votre liste de films préférés, vous devez d'abord créer votre espace personnel.";
+    sessionStorage.setItem('login_message', message);
+    const currentUrl = window.location.pathname;
+    window.location.href = `{% url 'login' %}?next=${currentUrl}`;
+}
+
+// Fonction pour basculer les favoris
+async function toggleFavorite(movieId) {
+    try {
+        const response = await fetch(`/toggle-favorite/${movieId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const btn = document.querySelector(`.favorite[data-movie-id="${movieId}"]`);
+            const icon = document.getElementById(`heart-icon-${movieId}`);
+            
+            if (data.is_favorite) {
+                icon.className = 'fas fa-heart';
+                icon.style.color = '#e74c3c';
+                btn.setAttribute('title', 'Retirer des favoris');
+                showNotification(data.message, 'success');
+            } else {
+                icon.className = 'far fa-heart';
+                icon.style.color = '';
+                btn.setAttribute('title', 'Ajouter aux favoris');
+                showNotification(data.message, 'info');
+            }
+        } else {
+            showNotification('Erreur: ' + data.error, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('Une erreur est survenue', 'error');
+    }
+}
+
+// Fonction de notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1000;
+        animation: slideInRight 0.3s ease;
+        ${type === 'success' ? 'background-color: #2ecc71;' : ''}
+        ${type === 'error' ? 'background-color: #e74c3c;' : ''}
+        ${type === 'info' ? 'background-color: #3498db;' : ''}
+    `;
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-20px)';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// ============ INITIALISATION ============
+
+// Fonction pour réinitialiser tout
+function resetAllFilters() {
+    // Réinitialiser les boutons
+    const tags = document.querySelectorAll('.category-tag');
+    tags.forEach(tag => tag.classList.remove('active'));
+    
+    const allTag = document.querySelector('.category-tag[data-category="all"]');
+    if (allTag) {
+        allTag.classList.add('active');
+    }
+    
+    // Réinitialiser la recherche
+    document.getElementById('searchInput').value = '';
+    
+    // Montrer toutes les cartes
+    const sections = ['filmsGrid', 'animesGrid', 'seriesGrid'];
+    sections.forEach(sectionId => {
+        const grid = document.getElementById(sectionId);
+        if (grid) {
+            const cards = grid.querySelectorAll('.movie-card');
+            cards.forEach(card => {
+                card.style.display = '';
+                card.style.opacity = '1';
+            });
+            toggleNoResultsMessage(sectionId, false);
+        }
+    });
+    
+    currentFilter = 'all';
+}
+
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes
+    const cards = document.querySelectorAll('.movie-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${(index % 10) * 0.1}s`;
+    });
+    
+    // Réinitialiser tous les filtres
+    resetAllFilters();
+});
+
+// Fonction pour afficher les résultats de recherche en dropdown
+function showSearchResults(query) {
+    const resultsContainer = document.getElementById('searchResults');
+    if (!resultsContainer) return;
+    
+    const movieCards = document.querySelectorAll('.movie-card');
+    let resultsHTML = '';
+    let resultCount = 0;
+    const maxResults = 8;
+    
+    movieCards.forEach(card => {
+        if (resultCount >= maxResults) return;
+        
+        const title = card.getAttribute('data-title') || '';
+        const category = card.getAttribute('data-category') || '';
+        const movieId = card.getAttribute('data-id');
+        const posterImg = card.querySelector('.movie-poster');
+        const posterSrc = posterImg ? posterImg.src : '';
+        
+        if (title.includes(query) || category.includes(query)) {
+            const displayTitle = card.querySelector('.movie-title')?.textContent || title;
+            resultsHTML += `
+                <div class="search-result-item" onclick="goToMovie(${movieId})">
+                    ${posterSrc ? `<img src="${posterSrc}" class="search-result-poster" alt="${title}">` : ''}
+                    <div class="search-result-info">
+                        <h4>${displayTitle}</h4>
+                        <div class="category">${category}</div>
+                    </div>
+                </div>
+            `;
+            resultCount++;
+        }
+    });
+    
+    if (resultCount > 0) {
+        resultsContainer.innerHTML = resultsHTML;
+        resultsContainer.style.display = 'block';
+    } else if (query.length > 0) {
+        resultsContainer.innerHTML = '<div class="no-search-results">Aucun film trouvé</div>';
+        resultsContainer.style.display = 'block';
+    } else {
+        resultsContainer.style.display = 'none';
+    }
+}
+
+// Fonction pour aller vers la page d'un film
+function goToMovie(movieId) {
+    window.location.href = `/movie/${movieId}/`;
+}
+
+// Modifie la fonction performSearch pour utiliser le dropdown
+function performSearch() {
+    const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+    
+    if (searchQuery === '') {
+        // Si recherche vide, réappliquer juste le filtre de catégorie
+        filterAllSections(currentFilter);
+        document.getElementById('searchResults').style.display = 'none';
+    } else {
+        // Combiner recherche + filtre catégorie
+        applySearchFilter(searchQuery);
+        // Afficher les résultats en dropdown
+        showSearchResults(searchQuery);
+    }
+}
+
+// Cacher les résultats quand on clique ailleurs
+document.addEventListener('click', function(event) {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (searchResults && !searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+        searchResults.style.display = 'none';
+    }
+});
+</script>
+
+</body>
+</html>

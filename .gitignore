@@ -1,0 +1,22 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+env/
+venv/
+*.sqlite3
+
+# Django
+/static/
+db.sqlite3
+/media/
+
+# VSCode
+.vscode/
+
+
+media/
+*.mp4
+*.png
+*.jpg
+*.jpeg

@@ -1,0 +1,998 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }} - Flixora</title>
+    <link rel="stylesheet" href="{% static 'movies/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ============ STYLES POUR LES ÉPISODES ============ */
+        .episodes-container {
+            background: var(--background-dark);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 40px 0;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .episodes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .episodes-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .episodes-info {
+            display: flex;
+            gap: 15px;
+        }
+
+        .season-badge, .episodes-count {
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .season-selector {
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .season-tabs {
+            display: flex;
+            gap: 10px;
+            min-width: max-content;
+        }
+
+        .season-tab {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: var(--text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .season-tab:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .season-tab.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .season-tab .episode-count {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .season-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .season-content.active {
+            display: block;
+        }
+
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .episode-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .episode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            border-color: var(--primary-color);
+        }
+
+        .episode-card.current {
+            border: 2px solid var(--primary-color);
+            background: rgba(0, 123, 255, 0.05);
+        }
+
+        .episode-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .episode-thumbnail {
+            position: relative;
+            height: 160px;
+            overflow: hidden;
+        }
+
+        .episode-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .episode-card:hover .episode-thumbnail img {
+            transform: scale(1.05);
+        }
+
+        .episode-thumbnail-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .episode-thumbnail-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .current-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .episode-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        .episode-info {
+            padding: 15px;
+        }
+
+        .episode-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: white;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .episode-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .episode-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .episode-date i {
+            margin-right: 5px;
+        }
+
+        .no-episodes-message {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 30px 0;
+            color: var(--text-light);
+        }
+
+        .no-episodes-message i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .episode-description-full {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .episode-description-full h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .video-controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.7);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .video-stats {
+            display: flex;
+            gap: 20px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .video-stats i {
+            margin-right: 5px;
+            color: var(--primary-color);
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .video-action-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .video-action-btn:hover {
+            background: var(--primary-color);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .episodes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .episodes-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .season-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .video-controls-bar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header avec logo et recherche -->
+<header class="detail-header">
+    <div class="site-logo">
+        <h1>Flixora</h1>
+    </div>
+    
+    <div class="header-search-container">
+        <a href="{% url 'movie_list' %}" class="back-to-home">
+            <i class="fas fa-home"></i>
+            Accueil
+        </a>
+
+        {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="back-to-home">
+            <i class="fas fa-crown"></i>
+            <span>Ma Flixora</span>
+        </a>
+        {% endif %}
+
+        <div class="header-search-wrapper">
+            <input type="text" 
+                   class="header-search-input" 
+                   placeholder="Rechercher un film...">
+            <button class="header-search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Hero section avec background et description -->
+<section class="movie-hero" 
+         style="background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+                {% if movie.thumbnail %}url('{{ movie.thumbnail.url }}'){% else %}var(--background-dark){% endif %};
+                background-size: cover;
+                background-position: center;">
+    
+    <div class="movie-hero-content">
+        <!-- Description à gauche -->
+        <div class="movie-description-box">
+            <h1 class="movie-title-main">{{ movie.title }}</h1>
+            
+            <div class="movie-meta-grid">
+                <div class="meta-item-detail">
+                    <span class="meta-label">Type</span>
+                    <span class="meta-value category">{{ movie.get_video_type_display }}</span>
+                </div>
+                
+                <div class="meta-item-detail">
+                    <span class="meta-label">Catégorie</span>
+                    <span class="meta-value category">{{ movie.get_category_display }}</span>
+                </div>
+                
+                <div class="meta-item-detail">
+                    <span class="meta-label">Durée</span>
+                    <span class="meta-value">{{ movie.duration|default:"120" }} minutes</span>
+                </div>
+                
+                <div class="meta-item-detail">
+                    <span class="meta-label">Année</span>
+                    <span class="meta-value">{{ movie.release_year|default:"2024" }}</span>
+                </div>
+            </div>
+            
+            <div class="synopsis-section">
+                <h3 class="synopsis-title">
+                    <i class="fas fa-scroll"></i>
+                    Synopsis
+                </h3>
+                <p class="synopsis-text">{{ movie.description|linebreaksbr }}</p>
+            </div>
+            
+            {% if movie.director %}
+            <div class="cast-crew">
+                <h3 class="cast-title">Équipe du film</h3>
+                <div class="cast-list">
+                    <span class="cast-item">
+                        <i class="fas fa-video"></i>
+                        Réalisateur: {{ movie.director }}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Poster à droite -->
+        <div class="movie-poster-container">
+            {% if movie.thumbnail %}
+            <img src="{{ movie.thumbnail.url }}" 
+                 alt="{{ movie.title }}" 
+                 class="movie-poster-large">
+            {% else %}
+            <img src="{% static 'images/default-poster-large.jpg' %}" 
+                 alt="{{ movie.title }}" 
+                 class="movie-poster-large">
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Section vidéo - CORRIGÉE -->
+<section class="video-container-main">
+    <h2 class="video-section-title">
+        <i class="fas fa-play-circle"></i>
+        {% if seasons and current_episode %}
+        {{ current_episode.full_episode_title }}
+        {% else %}
+        Regarder {{ movie.get_video_type_display }}
+        {% endif %}
+    </h2>
+    
+    {% if seasons and current_episode %}
+    <!-- Vidéo pour épisode -->
+    <div class="video-player-wrapper">
+        <video controls class="video-player" id="mainVideoPlayer" 
+               poster="{% if current_episode.thumbnail %}{{ current_episode.thumbnail.url }}{% elif movie.thumbnail %}{{ movie.thumbnail.url }}{% endif %}">
+            <source src="{{ current_episode.video.url }}" type="video/mp4">
+            Votre navigateur ne supporte pas la lecture de vidéos.
+        </video>
+        
+        <div class="video-controls-bar">
+            <div class="video-stats">
+                <span><i class="fas fa-clock"></i> {{ current_episode.duration|default:"?" }} min</span>
+                {% if current_episode.release_date %}
+                <span><i class="fas fa-calendar"></i> {{ current_episode.release_date|date:"d/m/Y" }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="video-actions">
+                <button class="video-action-btn" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i>
+                    Plein écran
+                </button>
+                {% if current_episode.description %}
+                <button class="video-action-btn" onclick="toggleDescription()">
+                    <i class="fas fa-info-circle"></i>
+                    Description
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if current_episode.description %}
+        <div class="episode-description-full" id="episodeDescription" style="display: none;">
+            <h4>Description de l'épisode :</h4>
+            <p>{{ current_episode.description }}</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% elif movie.video %}
+    <!-- Vidéo pour film simple -->
+    <div class="video-player-wrapper">
+        <video controls class="video-player" id="mainVideoPlayer" 
+               poster="{% if movie.thumbnail %}{{ movie.thumbnail.url }}{% endif %}">
+            <source src="{{ movie.video.url }}" type="video/mp4">
+            Votre navigateur ne supporte pas la lecture de vidéos.
+        </video>
+        
+        <div class="video-controls-bar">
+            <div class="video-stats">
+                <span><i class="fas fa-clock"></i> {{ movie.duration|default:"120" }} min</span>
+                <span><i class="fas fa-calendar"></i> {{ movie.created_at|date:"d/m/Y" }}</span>
+            </div>
+            
+            <div class="video-actions">
+                <button class="video-action-btn" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i>
+                    Plein écran
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="no-video-message">
+        <p>La vidéo sera bientôt disponible.</p>
+    </div>
+    {% endif %}
+</section>
+
+<!-- ============ SECTION DES ÉPISODES ============ -->
+{% if seasons %}
+<div class="episodes-container">
+    <div class="episodes-header">
+        <h2>
+            <i class="fas fa-list-ol"></i>
+            Épisodes
+        </h2>
+        <div class="episodes-info">
+            <span class="season-badge">{{ seasons|length }} saison{{ seasons|length|pluralize:"s" }}</span>
+            <span class="episodes-count">{{ episodes|length }} épisode{{ episodes|length|pluralize:"s" }}</span>
+        </div>
+    </div>
+    
+    <!-- Sélection de saison -->
+    <div class="season-selector">
+        <div class="season-tabs">
+            {% for season_num, season_episodes in seasons %}
+            <button class="season-tab {% if forloop.first %}active{% endif %}" 
+                    onclick="showSeason({{ season_num }})">
+                Saison {{ season_num }}
+                <span class="episode-count">{{ season_episodes|length }}</span>
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Liste des épisodes -->
+    {% for season_num, season_episodes in seasons %}
+    <div class="season-content {% if forloop.first %}active{% endif %}" id="season{{ season_num }}">
+        <div class="episodes-grid">
+            {% for episode in season_episodes %}
+            <div class="episode-card {% if current_episode and current_episode.id == episode.id %}current{% endif %}">
+                <a href="?episode={{ episode.id }}" class="episode-link">
+                    <div class="episode-thumbnail">
+                        {% if episode.thumbnail %}
+                        <img src="{{ episode.thumbnail.url }}" alt="{{ episode.title }}">
+                        {% else %}
+                        <div class="episode-thumbnail-placeholder">
+                            <i class="fas fa-play-circle"></i>
+                            <span>Ép. {{ episode.episode_number }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if current_episode and current_episode.id == episode.id %}
+                        <div class="current-badge">
+                            <i class="fas fa-play"></i>
+                            En cours
+                        </div>
+                        {% endif %}
+                        
+                        <div class="episode-duration">
+                            <i class="fas fa-clock"></i>
+                            {{ episode.duration|default:"?" }} min
+                        </div>
+                    </div>
+                    
+                    <div class="episode-info">
+                        <h4 class="episode-title">
+                            Épisode {{ episode.episode_number }}: {{ episode.title }}
+                        </h4>
+                        
+                        {% if episode.description %}
+                        <p class="episode-description">
+                            {{ episode.description|truncatechars:100 }}
+                        </p>
+                        {% endif %}
+                        
+                        <div class="episode-meta">
+                            {% if episode.release_date %}
+                            <span class="episode-date">
+                                <i class="fas fa-calendar"></i>
+                                {{ episode.release_date|date:"d/m/Y" }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% elif not seasons and movie.video_type == "film" %}
+<div class="no-episodes-message">
+    <p><i class="fas fa-film"></i> Ceci est un film complet - Pas d'épisodes</p>
+</div>
+{% endif %}
+<!-- ============ FIN SECTION DES ÉPISODES ============ -->
+
+<!-- Évaluations -->
+<div class="movie-ratings-section">
+    <h3>
+        <i class="fas fa-star"></i>
+        Évaluations
+    </h3>
+    
+    <div class="rating-stats">
+        <div class="average-rating">
+            <span class="rating-score">{{ movie.average_rating|floatformat:1 }}</span>/5
+            <div class="stars">
+                {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= movie.average_rating %}
+                        <i class="fas fa-star"></i>
+                    {% else %}
+                        <i class="far fa-star"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <span class="rating-count">({{ movie.rating_count }} évaluations)</span>
+        </div>
+        
+        <!-- Évaluation utilisateur -->
+        {% if user.is_authenticated %}
+        <div class="user-rating">
+            <p>Votre évaluation :</p>
+            <div class="rate-stars" data-movie-id="{{ movie.id }}">
+                {% for i in "12345"|make_list %}
+                    <i class="far fa-star rate-star" data-score="{{ forloop.counter }}"></i>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Section commentaires -->
+<div class="comments-section">
+    <h3>
+        <i class="fas fa-comments"></i>
+        Commentaires ({{ movie.comment_count }})
+    </h3>
+    
+    <!-- Formulaire d'ajout de commentaire -->
+    {% if user.is_authenticated %}
+    <div class="add-comment">
+        <textarea id="commentText" placeholder="Partagez votre avis sur ce film..."></textarea>
+        <button onclick="addComment({{ movie.id }})" class="btn-comment">
+            <i class="fas fa-paper-plane"></i>
+            Publier
+        </button>
+    </div>
+    {% else %}
+    <p class="login-to-comment">
+        <a href="{% url 'login' %}?next={% url 'movie_detail' movie.pk %}">
+            Connectez-vous pour commenter
+        </a>
+    </p>
+    {% endif %}
+    
+    <!-- Liste des commentaires -->
+    <div class="comments-list" id="commentsList">
+        {% for comment in movie.get_recent_comments %}
+        <div class="comment-item">
+            <div class="comment-header">
+                <span class="comment-author">{{ comment.user_profile.user.username }}</span>
+                <span class="comment-date">{{ comment.created_at|date:"d/m/Y H:i" }}</span>
+            </div>
+            <div class="comment-content">{{ comment.content }}</div>
+        </div>
+        {% empty %}
+        <p class="no-comments">Aucun commentaire pour le moment. Soyez le premier à commenter !</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Footer avec actions -->
+<footer class="footer-actions">
+    <div class="social-share">
+        <p>Partager :</p>
+        <div class="social-icons">
+            <button class="social-btn" onclick="shareFacebook()">
+                <i class="fab fa-facebook-f"></i>
+            </button>
+            <button class="social-btn" onclick="shareTwitter()">
+                <i class="fab fa-twitter"></i>
+            </button>
+            <button class="social-btn" onclick="shareWhatsapp()">
+                <i class="fab fa-whatsapp"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="download-options">
+        {% if seasons and current_episode %}
+        <a href="{{ current_episode.video.url }}" download class="download-btn">
+            <i class="fas fa-download"></i>
+            Télécharger l'épisode
+        </a>
+        {% elif movie.video %}
+        <a href="{{ movie.video.url }}" download class="download-btn">
+            <i class="fas fa-download"></i>
+            Télécharger le film
+        </a>
+        {% endif %}
+        <a href="{% url 'movie_list' %}" class="download-btn">
+            <i class="fas fa-film"></i>
+            Plus de films
+        </a>
+    </div>
+</footer>
+
+<script>
+    // ============ FONCTIONS POUR LES ÉPISODES ============
+    
+    function showSeason(seasonNum) {
+        // Masquer tous les contenus de saison
+        document.querySelectorAll('.season-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Désactiver tous les onglets
+        document.querySelectorAll('.season-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Afficher la saison sélectionnée
+        const seasonContent = document.getElementById('season' + seasonNum);
+        if (seasonContent) {
+            seasonContent.classList.add('active');
+        }
+        
+        // Activer l'onglet correspondant
+        const tab = document.querySelector(`.season-tab[onclick*="showSeason(${seasonNum})"]`);
+        if (tab) {
+            tab.classList.add('active');
+        }
+    }
+    
+    function toggleDescription() {
+        const desc = document.getElementById('episodeDescription');
+        if (desc) {
+            if (desc.style.display === 'none' || desc.style.display === '') {
+                desc.style.display = 'block';
+                showNotification('Description affichée', 'info');
+            } else {
+                desc.style.display = 'none';
+                showNotification('Description masquée', 'info');
+            }
+        }
+    }
+    
+    function toggleFullscreen() {
+        const videoPlayer = document.getElementById('mainVideoPlayer');
+        if (!document.fullscreenElement) {
+            if (videoPlayer.requestFullscreen) {
+                videoPlayer.requestFullscreen();
+            } else if (videoPlayer.webkitRequestFullscreen) {
+                videoPlayer.webkitRequestFullscreen();
+            } else if (videoPlayer.msRequestFullscreen) {
+                videoPlayer.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+    }
+    
+    // ============ FONCTIONS EXISTANTES ============
+    
+    // Fonction pour récupérer le token CSRF
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Fonction pour évaluer un film
+    async function rateMovie(movieId, score) {
+        try {
+            const formData = new FormData();
+            formData.append('score', score);
+            
+            const response = await fetch(`/movie/${movieId}/rate/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showNotification('Évaluation enregistrée !', 'success');
+                updateRatingDisplay(data);
+            } else {
+                showNotification('Erreur: ' + data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showNotification('Une erreur est survenue', 'error');
+        }
+    }
+    
+    // Fonction pour ajouter un commentaire
+    async function addComment(movieId) {
+        const content = document.getElementById('commentText').value.trim();
+        if (!content) {
+            showNotification('Veuillez écrire un commentaire', 'error');
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('content', content);
+            
+            const response = await fetch(`/movie/${movieId}/comment/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                addCommentToDOM(data);
+                document.getElementById('commentText').value = '';
+                showNotification('Commentaire publié !', 'success');
+            } else {
+                showNotification('Erreur: ' + data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showNotification('Une erreur est survenue', 'error');
+        }
+    }
+    
+    // Fonction pour ajouter un commentaire au DOM
+    function addCommentToDOM(data) {
+        const commentsList = document.getElementById('commentsList');
+        
+        const noCommentsMsg = commentsList.querySelector('.no-comments');
+        if (noCommentsMsg) {
+            noCommentsMsg.remove();
+        }
+        
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment-item';
+        commentDiv.innerHTML = `
+            <div class="comment-header">
+                <span class="comment-author">${data.username}</span>
+                <span class="comment-date">${data.created_at}</span>
+            </div>
+            <div class="comment-content">${data.content}</div>
+        `;
+        
+        commentsList.insertBefore(commentDiv, commentsList.firstChild);
+    }
+    
+    // Fonction pour mettre à jour l'affichage des évaluations
+    function updateRatingDisplay(data) {
+        const ratingScore = document.querySelector('.rating-score');
+        if (ratingScore) {
+            ratingScore.textContent = data.average_rating.toFixed(1);
+        }
+        
+        const ratingCount = document.querySelector('.rating-count');
+        if (ratingCount) {
+            ratingCount.textContent = `(${data.rating_count} évaluations)`;
+        }
+        
+        if (data.user_rating) {
+            const stars = document.querySelectorAll('.rate-star');
+            stars.forEach((star, index) => {
+                if (index < data.user_rating) {
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+        }
+    }
+    
+    // Fonction de notification
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(notification);
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+            ${type === 'success' ? 'background-color: #2ecc71;' : ''}
+            ${type === 'error' ? 'background-color: #e74c3c;' : ''}
+            ${type === 'info' ? 'background-color: #3498db;' : ''}
+        `;
+        
+        notification.style.animation = 'slideInRight 0.3s ease';
+        
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+    
+    // Initialisation des étoiles au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des évaluations par étoiles
+        document.querySelectorAll('.rate-star').forEach(star => {
+            star.addEventListener('click', function() {
+                const movieId = this.closest('.rate-stars').dataset.movieId;
+                const score = this.dataset.score;
+                rateMovie(movieId, score);
+            });
+            
+            star.addEventListener('mouseover', function() {
+                const score = this.dataset.score;
+                const stars = this.closest('.rate-stars').querySelectorAll('.rate-star');
+                stars.forEach((s, index) => {
+                    if (index < score) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseout', function() {
+                const stars = this.closest('.rate-stars').querySelectorAll('.rate-star');
+                stars.forEach(s => {
+                    s.classList.remove('fas');
+                    s.classList.add('far');
+                });
+            });
+        });
+        
+        // Pour les séries, on charge automatiquement la saison 1
+        {% if seasons %}
+            showSeason(1);
+        {% endif %}
+    });
+    
+    // Fonctions de partage
+    function shareFacebook() {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent('{{ movie.title }}');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`, '_blank');
+    }
+    
+    function shareTwitter() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent('Regardez "{{ movie.title }}" sur Flixora!');
+        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+    }
+    
+    function shareWhatsapp() {
+        const text = encodeURIComponent('Regardez "{{ movie.title }}" sur Flixora: ' + window.location.href);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+</script>
+    
+</body>
+</html>
