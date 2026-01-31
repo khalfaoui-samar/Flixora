@@ -1,22 +1,21 @@
-# Python
-*.pyc
-*.pyo
-__pycache__/
-env/
-venv/
-*.sqlite3
-
-# Django
-/static/
-db.sqlite3
-/media/
-
-# VSCode
-.vscode/
-
-
+# Fichiers médias
 media/
 *.mp4
-*.png
-*.jpg
-*.jpeg
+*.avi
+*.mkv
+*.mov
+*.wmv
+
+# Base de données SQLite
+*.sqlite3
+*.db
+
+# Fichiers temporaires
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environnements virtuels
+venv/
+env/
