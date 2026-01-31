@@ -52,29 +52,31 @@ Seuls les utilisateurs connectés peuvent ajouter des favoris et gérer leur pro
 
 ## 🖼️ Aperçu du site
 
-### Page d’accueil
-![movies](accueil.png)
+### Page d'accueil
+![Page d'accueil](accueil.png)
 
-### Inteface pour les films 
-![movies](Interface_film.png)
-### Interface pour les animes 
-![movies](Interface_Anime.png)
-### Interface pour les series 
-![movies](Interface_Series.png)
+### Interface pour les films
+![Interface films](Interface_film.png)
 
-### Ajouter aux favoris / Authentification
-![movies](login.png)
-![movies](register.png)
+### Interface pour les animes
+![Interface animes](Interface_Anime.png)
 
-### Lecture d’un film
-![movies](1.png)
-![movies](2.png)
+### Interface pour les séries
+![Interface séries](Interface_Series.png)
 
-### Profile
-![movies](profile.png)
+### Authentification
+![Login](login.png)
+![Register](register.png)
 
-### Historique 
-![movies](historique.png)
+### Lecture d'un film
+![Lecture 1](1.png)
+![Lecture 2](2.png)
+
+### Profil
+![Profil](profile.png)
+
+### Historique
+![Historique](historique.png)
 
 ---
 
